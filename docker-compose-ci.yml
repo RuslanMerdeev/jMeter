@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  web:
+    image: web-app
+    build: .
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      - JDBC_URL=jdbc:postgresql://db:5432/db?user=app&password=pass
+      - MEDIA_PATH=/media
+    depends_on:
+      - db
+    volumes:
+      - ./media:/media
+  db:
+    image: postgres:alpine
+    command: ["postgres", "-c", "log_statement=all"]
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=pass
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro

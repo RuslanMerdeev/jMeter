@@ -1,0 +1,48 @@
+// @no-cookie-jar
+POST http://localhost:8080/api/media
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="logo.png"
+Content-Type: image/png
+
+< ./logo.png
+--WebAppBoundary--
+
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.global.set("avatar", response.body.path);
+});
+%}
+
+### Register
+
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+  "username": "{{$uuid}}",
+  "password": "secret000",
+  "avatar": "{{avatar}}"
+}
+
+> {%
+client.test("Request executed successfully", function() {
+  client.assert(response.status === 200, "Response status is not 200");
+  client.global.set("token", response.body.token)
+});
+%}
+
+### Me
+
+GET http://localhost:8080/api/users/me
+X-Token: {{token}}
+
+###
+
+// TODO:
+//  GET
+//  path
+//  size - body - 0
